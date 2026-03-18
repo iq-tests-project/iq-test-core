@@ -1,0 +1,260 @@
+openapi: 3.0.0
+info:
+  title: IQ Test API 
+  description: It's so simple, even a rock can use it.
+  version: 1.0.1
+  contact:
+    name: Valeriya (The Smart One)
+    email: valeriya@stupid-iq-test.com
+
+servers:
+  - url: https://stupid-iq-test.com/api
+    description: Production 
+  - url: http://localhost:8080/api
+    description: Local environment
+
+tags:
+  - name: IQ
+    description: IQ stuff
+
+paths:
+  /questions:
+    get:
+      tags:
+        - IQ
+      summary: Get the dumbest questions ever
+      description: Returns 5 joke. No thinking required.
+      operationId: getDumbQuestions
+      responses:
+        '200':
+          description: Here are your dumb questions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      test_id:
+                        type: string
+                        example: "iq_test_2026_dumb_edition"
+                      title:
+                        type: string
+                        example: "The World's Most Accurate IQ Test"
+                      description:
+                        type: string
+                        example: "Warning: This test may lower your IQ"
+                      questions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DumbQuestion'
+                        minItems: 5
+                        maxItems: 5
+        '500':
+          description: Even the server is dumb today
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /submit:
+    post:
+      tags:
+        - IQ
+      summary: Submit your dumb answers
+      description: Get your instant IQ score
+      operationId: calculateDumbIQ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - answers
+              properties:
+                user_name:
+                  type: string
+                  example: "Smartypants"
+                  description: Optional, if empty we'll call you 'Anonymous Genius'
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      question_id:
+                        type: integer
+                        example: 1
+                      answer:
+                        type: string
+                        example: "b"
+      responses:
+        '200':
+          description: Your IQ has been calculated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/IQResult'
+        '400':
+          description: Even your answers are dumb
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /result/{result_id}:
+    get:
+      tags:
+        - IQ
+      summary: Get your glorious result
+      description: Retrieve your previously generated IQ score (if you remember it)
+      operationId: getDumbResult
+      parameters:
+        - name: result_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Your result ID (keep it safe, or don't, we don't care)
+      responses:
+        '200':
+          description: Here's your result, genius
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/IQResult'
+        '404':
+          description: Result not found (maybe your IQ is too high to find it?)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /result/{result_id}/share:
+    post:
+      tags:
+        - IQ
+      summary: Share your IQ with the world
+      description: Generates a shareable link so everyone can laugh at your score
+      operationId: shareDumbResult
+      parameters:
+        - name: result_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Share link generated (good luck with that)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      share_url:
+                        type: string
+                        example: "https://stupid-iq-test.com/share/abc123"
+                      share_text:
+                        type: string
+                        example: "I scored 147 on the IQ test! Can you beat me?"
+        '404':
+          description: Result not found (maybe it's too embarrassing to exist)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    DumbQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        question:
+          type: string
+          example: "What is 2 + 2?"
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: "a"
+              text:
+                type: string
+                example: "4"
+              value:
+                type: integer
+                example: 50
+                description: Each answer has a dumb score value
+
+    IQResult:
+      type: object
+      properties:
+        result_id:
+          type: string
+          example: "genius_123"
+        user_name:
+          type: string
+          example: "DefinitelyNotEinstein"
+        iq_score:
+          type: integer
+          example: 147
+          description: Random number between 70-160
+        title:
+          type: string
+          example: "Professional Pretender"
+        description:
+          type: string
+          example: "You pretend to be smart, but we know you just clicked random buttons."
+        badge:
+          type: string
+          example: "(empty)"
+        message:
+          type: string
+          example: "Congratulations! Your IQ is higher than room temperature!"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-03-18T15:30:00Z"
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "IQ_TOO_HIGH_TO_COMPUTE"
+            message:
+              type: string
+              example: "Our dumb server cannot process your genius level"
